@@ -12,12 +12,16 @@ public class Field {
     public int getSize(){
         return size;
     }
-    public boolean Win;
     private ArrayList<Step> Steps;
+    boolean isShowingControls;
+    public boolean Win;
+    public String label;
 
     public Field(String name) throws Exception {
         boolean moleIsFound = false;
         Win = false;
+        label = "";
+        isShowingControls = false;
         StepsNum = 0;
         Steps = new ArrayList<Step> ();
 
@@ -172,12 +176,17 @@ public class Field {
         step.Mole.state = 'm';
     }
     public void Move(KeyEvent event){
+
         //если это не клавиша управления
         if (!(event.getKeyCode() == 32 || (event.getKeyCode() >= 37 && event.getKeyCode() <= 40)))
             return;
 
-        if (event.getKeyCode() == 32)    //пробел
-            stepBack();
+        if (event.getKeyCode() == 32) {    //пробел
+            if (Steps.size() != 0){
+                StepsNum++;
+                stepBack();
+            }
+        }
 
         if (event.getKeyCode() >= 37 && event.getKeyCode() <= 40)   //стрелки
         {
@@ -281,6 +290,12 @@ public class Field {
             }
 
             Win = checkWin();
+        }
+    }
+
+    public void SetToDefault(){
+        while (Steps.size() != 0){
+            stepBack();
         }
     }
 

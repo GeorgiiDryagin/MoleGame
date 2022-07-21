@@ -1,11 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 
-public class MoleGraphics extends JPanel {
+public class GameplayGraphics extends JPanel {
     public Field field;
-
-
     private int cellSize = 50;
     private int gap = 0;
     Image Krtek;
@@ -14,7 +11,7 @@ public class MoleGraphics extends JPanel {
     Image BagGrain;
     Image Target;
 
-    MoleGraphics(Field f){
+    GameplayGraphics(Field f){
         field = f;
 
         Krtek = new ImageIcon("Krtek.png").getImage();
@@ -24,6 +21,8 @@ public class MoleGraphics extends JPanel {
         Target = new ImageIcon("Target.png").getImage();
     }
 
+
+
     public void paint(Graphics g){
         super.paint(g);
 
@@ -32,7 +31,8 @@ public class MoleGraphics extends JPanel {
         g.setColor(Color.BLACK);
         g.drawString(Integer.toString(field.StepsNum), 0, 10);
         if (field.Win)
-            g.drawString("Win!", 0, 30);
+            g.drawString("Win!", 0, 20);
+        g.drawString(field.label, 0, 40);
 
         for (int i = 0; i < size; i++){
             for (int j = 0; j < size; j++){
