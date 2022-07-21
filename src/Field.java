@@ -1,7 +1,9 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Scanner;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 public class Field {
     public int StepsNum;
@@ -11,11 +13,14 @@ public class Field {
         return size;
     }
     public boolean Win;
+    private ArrayList<Step> Steps;
 
     public Field(String name) throws Exception {
         boolean moleIsFound = false;
         Win = false;
         StepsNum = 0;
+        Steps = new ArrayList<Step> ();
+
         try {
             File myObj = new File(name);
             Scanner myReader = new Scanner(myObj);
@@ -157,90 +162,126 @@ public class Field {
         return true;
     }
 
+    //вернуться на ход назад
+    private void stepBack(){
+        if (Steps.size() == 0) return;
+        Step step = Steps.remove(Steps.size() -1);
+        if (step.AfterNext != null)
+            step.AfterNext.state = step.AfterNextState;
+        step.Next.state = step.NextState;
+        step.Mole.state = 'm';
+    }
     public void Move(KeyEvent event){
-        StepsNum++;
-        int moleRaw = 0;  //координаты ячейки с кротом
-        int moleCol = 0;
-        int direction = 0;
-        boolean found = false;
-        for (int i = 0; i < size && !found; i++)
-            for (int j = 0; j < size && !found; j++)
-                if (cells[i][j].state == 'm'){
-                    moleRaw = i;
-                    moleCol = j;
-                    found = true;
-                }
-
-        Cell nextCell = null;       //ячейка, куда крот собирается пойти
-        Cell afterNextCell = null;  //ячейка, куда может быть вытеснено содержимое
-
-        //вверх
-        if (event.getKeyChar() == 'w'){
-            if (moleRaw == 0) return;  //если над кротом нет ячеек
-            if (cells[moleRaw][moleCol].walls[2]) return; //если перед кротом стена
-
-            //если над кротом больше одной ячейки
-            if (moleRaw > 1) afterNextCell = cells[moleRaw - 2][moleCol];
-            nextCell = cells[moleRaw - 1][moleCol];
-            direction = 2;
-        }
-        //вниз
-        if (event.getKeyChar() == 's'){
-            if (moleRaw == size - 1) return;  //если под кротом нет ячеек
-            if (cells[moleRaw][moleCol].walls[0]) return;
-
-            //если под кротом больше одной ячейки
-            if (moleRaw + 2 < size) afterNextCell = cells[moleRaw + 2][moleCol];
-            nextCell = cells[moleRaw + 1][moleCol];
-            direction = 0;
-        }
-        //влево
-        if (event.getKeyChar() == 'a'){
-            if (moleCol == 0) return;
-            if (cells[moleRaw][moleCol].walls[1]) return;
-
-            if (moleCol > 1) afterNextCell = cells[moleRaw][moleCol - 2];
-            nextCell = cells[moleRaw][moleCol - 1];
-            direction = 1;
-        }
-        //вправо
-        if (event.getKeyChar() == 'd'){
-            if (moleCol == size - 1) return;
-            if (cells[moleRaw][moleCol].walls[3]) return;
-
-            if (moleCol + 2 < size) afterNextCell = cells[moleRaw][moleCol + 2];
-            nextCell = cells[moleRaw][moleCol + 1];
-            direction = 3;
-        }
-
-        if (nextCell == null) return;
-        if (nextCell.state == 'g' || nextCell.state == 'c' ) return;
-
-        //перед кротом свободная ячейка
-        if (nextCell.state == 'f'){
-            nextCell.state = 'm';
-            cells[moleRaw][moleCol].state = 'f';
+        //если это не клавиша управления
+        if (!(event.getKeyCode() == 32 || (event.getKeyCode() >= 37 && event.getKeyCode() <= 40)))
             return;
-        }
 
-        if (nextCell.walls[direction]) return; //если нельзя вытолкнуть предмет с соседней клетки
-        //перед кротом мешок (любой)
-        if (nextCell.state == 'b' || nextCell.state == 'w' ){
-            if (afterNextCell == null) return;//предотвращение выталкивания за границу
-            //перемещение любого мешка на пустую клетку
-            if (afterNextCell.state == 'f'){
-                afterNextCell.state = nextCell.state;
+        if (event.getKeyCode() == 32)    //пробел
+            stepBack();
+
+        if (event.getKeyCode() >= 37 && event.getKeyCode() <= 40)   //стрелки
+        {
+            int moleRaw = 0;  //координаты ячейки с кротом
+            int moleCol = 0;
+            int direction = 0;
+            boolean found = false;
+            for (int i = 0; i < size && !found; i++)
+                for (int j = 0; j < size && !found; j++)
+                    if (cells[i][j].state == 'm'){
+                        moleRaw = i;
+                        moleCol = j;
+                        found = true;
+                    }
+
+            Cell nextCell = null;       //ячейка, куда крот собирается пойти
+            Cell afterNextCell = null;  //ячейка, куда может быть вытеснено содержимое
+
+            //вверх
+            if (event.getKeyCode() == 38){
+                if (moleRaw == 0) return;  //если над кротом нет ячеек
+                if (cells[moleRaw][moleCol].walls[2]) return; //если перед кротом стена
+
+                //если над кротом больше одной ячейки
+                if (moleRaw > 1) afterNextCell = cells[moleRaw - 2][moleCol];
+                nextCell = cells[moleRaw - 1][moleCol];
+                direction = 2;
+            }
+            //вниз
+            if (event.getKeyCode() == 40){
+                if (moleRaw == size - 1) return;  //если под кротом нет ячеек
+                if (cells[moleRaw][moleCol].walls[0]) return;
+
+                //если под кротом больше одной ячейки
+                if (moleRaw + 2 < size) afterNextCell = cells[moleRaw + 2][moleCol];
+                nextCell = cells[moleRaw + 1][moleCol];
+                direction = 0;
+            }
+            //влево
+            if (event.getKeyCode() == 37){
+                if (moleCol == 0) return;
+                if (cells[moleRaw][moleCol].walls[1]) return;
+
+                if (moleCol > 1) afterNextCell = cells[moleRaw][moleCol - 2];
+                nextCell = cells[moleRaw][moleCol - 1];
+                direction = 1;
+            }
+            //вправо
+            if (event.getKeyCode() == 39){
+                if (moleCol == size - 1) return;
+                if (cells[moleRaw][moleCol].walls[3]) return;
+
+                if (moleCol + 2 < size) afterNextCell = cells[moleRaw][moleCol + 2];
+                nextCell = cells[moleRaw][moleCol + 1];
+                direction = 3;
+            }
+
+            //пройти нельзя
+            //следующей ячейки нет
+            if (nextCell == null) return;
+            //следующая ячейка не может быть сдвинута
+            if (nextCell.state == 'g' || nextCell.state == 'c' ) return;
+            //если есть стена, которая мешает сдвинуть предмет
+            if (nextCell.state != 'f' &&nextCell.walls[direction]) return;
+            //если пытаемся вытолкнуть предмет за границу поля
+            if ((nextCell.state == 'b' || nextCell.state == 'w' )
+                && (afterNextCell == null)) return;
+
+
+            //когда можно пройти
+
+            //сохраняем текущее состояние на случай отмены хода
+            char afterNextCellState;
+            if (afterNextCell != null)
+                afterNextCellState = afterNextCell.state;
+            else afterNextCellState = '0';
+            Steps.add(new Step(cells[moleRaw][moleCol],
+                    nextCell, afterNextCell, nextCell.state, afterNextCellState));
+            StepsNum++;
+
+            //перед кротом свободная ячейка
+            if (nextCell.state == 'f'){
                 nextCell.state = 'm';
                 cells[moleRaw][moleCol].state = 'f';
+                return;
             }
-            //если крот толкает пустой мешок на зерно
-            if (afterNextCell.state == 'g' && nextCell.state == 'b'){
-                afterNextCell.state = 'w';
-                nextCell.state = 'm';
-                cells[moleRaw][moleCol].state = 'f';
+            //перед кротом мешок (любой)
+            if (nextCell.state == 'b' || nextCell.state == 'w' ){
+                //перемещение любого мешка на пустую клетку
+                if (afterNextCell.state == 'f'){
+                    afterNextCell.state = nextCell.state;
+                    nextCell.state = 'm';
+                    cells[moleRaw][moleCol].state = 'f';
+                }
+                //если крот толкает пустой мешок на зерно
+                if (afterNextCell.state == 'g' && nextCell.state == 'b'){
+                    afterNextCell.state = 'w';
+                    nextCell.state = 'm';
+                    cells[moleRaw][moleCol].state = 'f';
+                }
             }
+
+            Win = checkWin();
         }
-        Win = checkWin();
     }
 
     public void Delete(){
