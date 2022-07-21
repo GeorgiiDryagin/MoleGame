@@ -15,12 +15,10 @@ public class Field {
     private ArrayList<Step> Steps;
     boolean isShowingControls;
     public boolean Win;
-    public String label;
 
     public Field(String name) throws Exception {
         boolean moleIsFound = false;
         Win = false;
-        label = "";
         isShowingControls = false;
         StepsNum = 0;
         Steps = new ArrayList<Step> ();
@@ -174,6 +172,7 @@ public class Field {
             step.AfterNext.state = step.AfterNextState;
         step.Next.state = step.NextState;
         step.Mole.state = 'm';
+        StepsNum = 0;
     }
     public void Move(KeyEvent event){
 

@@ -19,6 +19,7 @@ public class Menu {
     JButton jbLevel2;
     JButton jbLevel3;
     JButton jbLevelMenu;
+    JLabel jLabel;
 
     static JFrame getJFrame(){
         JFrame jFrame = new JFrame() {};
@@ -64,8 +65,8 @@ public class Menu {
     }
 
     public void ShowMenu(){
-
-        JLabel jLabel = new JLabel("");
+        jLabel = new JLabel("");
+        isShowingControls = false;
 
         jbStart = new JButton(Labels[language][0]);
         jPanel.add(jbStart);
@@ -77,6 +78,7 @@ public class Menu {
                 jbLanguage.setVisible(false);
                 jbExit.setVisible(false);
                 jLabel.setText("");
+                isShowingControls = false;
 
                 jbLevel1.setVisible(true);
                 jbLevel2.setVisible(true);
@@ -90,12 +92,7 @@ public class Menu {
         jbHelp.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isShowingControls = !isShowingControls;
-                if (isShowingControls){
-                    jLabel.setText(Labels[language][3]);
-                }
-                else
-                    jLabel.setText("");
+                ShowHelp();
             }
         });
 
@@ -190,6 +187,7 @@ public class Menu {
                 jbLanguage.setVisible(true);
                 jbExit.setVisible(true);
                 jLabel.setText("");
+                isShowingControls = false;
 
                 jbLevel1.setVisible(false);
                 jbLevel2.setVisible(false);
@@ -204,6 +202,14 @@ public class Menu {
         jbLevelMenu.setVisible(false);
 
 
+    }
+
+    void ShowHelp(){
+        isShowingControls = !isShowingControls;
+        if (isShowingControls)
+            jLabel.setText(Labels[language][3]);
+        else
+            jLabel.setText("");
     }
 
     private void LaunchGame(String name){
@@ -230,28 +236,20 @@ public class Menu {
             }
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyChar() == 'r')
+                if (e.getKeyCode() == 82)
                     finalField.SetToDefault();
+                if (e.getKeyCode() == 72)
+                    finalField.isShowingControls = !finalField.isShowingControls;
+
                 finalField.Move(e);
             }
         });
 
 
-        GameplayGraphics canvas = new GameplayGraphics(field);
+        GameplayGraphics canvas = new GameplayGraphics(field, language);
         //настройки игрового поля
         canvas.setBackground(Color.white);
         GameFrame.add(canvas);
         GameFrame.setVisible(true);
-
-  /*      JButton again = new JButton("Start again");
-        again.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                finalField.SetToDefault();
-            }
-        });
-        canvas.add(again);
-        */
-
     }
 }
